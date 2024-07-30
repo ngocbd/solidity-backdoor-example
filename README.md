@@ -1,4 +1,4 @@
-#Hacker cài backdoor vào SmartContract như thế nào
+# Hacker cài backdoor vào SmartContract như thế nào
 
 Hacker thực hiện hack/exploit được một smartcontract gây ra thiệt hại hàng triệu đến trăm triệu USD không phải là hiếm trong blockchain . Nhưng có một dạng mất dạy, đó là nhận dự án outsource hoặc nhân viên trong công ty , hay cả chủ dự án cố tình cài backdoor trong smartcontract không phải là hiếm, nếu không muốn nói là nhiều vcd.
 
@@ -11,7 +11,7 @@ Thường thì các chiêu trò thông thường như để contract Proxy hay U
 Mục đích : Hacker muốn tăng số dư của mình.
 
 Phân tích : Kiểu gì thì kiểu hacker muốn làm điều này đều phải làm 1 chuyện là cài đặt vào hàm nào đó mà can thiệp vào cái map _balance
-```
+```solidity
 mapping(address account => uint256) private _balances;
 ```
 vậy phải kiếm chỗ nhét cái lệnh _balances[hackwaller] = xyz hoặc _balances[hackwaller] += xyz
@@ -29,14 +29,14 @@ Hacker nghĩ đến can thiệp vào hàm _transfer hay _burn của thư viện.
 Và vì ERC20.sol vẫn chưa đủ kín và cái logic củ chuối nếu sender là 0xABC if(hackwaller==0xABC) quá lộ liễu. Hacker nghĩ đến giấu nó vào hàm nào đó của thư viện sâu hơn . Ở đây hacker giấu vào SafeMath
 
 Khi chuyển token từ ví A sang ví B , ERC20 sẽ cộng tiền cho ví B và trừ tiền ở ví A. Code nó thế này .
-```
+```solidity
 unchecked { _balances[sender] = senderBalance.sub(amount); } 
 
 _balances[recipient] += amount; 
 ```
 emit Transfer(sender, recipient, amount);
 Dị là nếu ta can thiệp vào hàm sub đổi trừ thành cộng là sẽ kiếm dc tiền. Tuy nhiên nếu chỉ như vậy thì logic loạn lên hết cả. Vậy ta sẽ ấn định 1 hằng số để khi amount == HẰNG số kia ta mới héc
-```
+```solidity
 // File: @openzeppelin/contracts/utils/math/SafeMath.sol
 
 // SPDX-License-Identifier: MIT
@@ -58,7 +58,7 @@ library SafeMath {
 }
 ```
 Đến đây lại tạo ra được vài chú triệu phú . Code vẫn có nhược điểm là magic number kia to chình ình ra. Cần phải giấu nó đi , và cả cái if kia cũng dễ bị search thấy. Ok giấu nào
-```
+```solidity
 // File: @openzeppelin/contracts/utils/math/SafeMath.sol
 
 // SPDX-License-Identifier: MIT
@@ -82,7 +82,7 @@ library SafeMath {
 }
 ```
 Như bạn thấy đấy không có cái IF nữa và magic number thật sự cũng không khỏa mông cho thiên hạ nhìn nữa. Nhưng đến đây hacker muốn magic number phức tạp nữa thì sao ? Dễ thôi tách làm 2 phần
-```
+```solidity
 // File: @openzeppelin/contracts/utils/math/SafeMath.sol
 
 // SPDX-License-Identifier: MIT
@@ -112,7 +112,7 @@ library SafeMath {
 }
 ```
 Bạn thấy đủ chưa ? Nếu chưa hãy chơi trò sửa một magic numner thành 1 giá trị nào đó sẵn có, ở đây tôi chơi trò lấy blocktime tiện thể cài luôn điều kiện kích hoạt vào 1/1/2025
-```
+```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
@@ -147,7 +147,7 @@ library SafeMath {
 Như vậy chỉ sau ngày 1/1/2025 mới hack dc , hacker sẽ viết bot để có thể trở thành người đầu tiên , sau đó bán token ra và én.
 
 Tất nhiên hacker sẽ phức tạp hóa code lên bằng cách loại bỏ các biến trung gian , các hằng số , và loại bỏ luôn cả lệnh if để cho ông hacker khác có nhìn vào cũng hoa mắt chóng mặt đau đầu.
-```
+```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
@@ -181,7 +181,7 @@ library SafeMath {
 }
 ```
 Code thiaatj thì ko có comment đâu nhá , đọc bắt đầu ngáo rồi đúng không ? OK giờ thì final bằng cách ghép hết vào 1 biểu thức duy nhất minify, và obfuscatenó đi ( ở đây cho dễ đọc tôi sẽ chỉ thực hiên ghép)
-```
+```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
