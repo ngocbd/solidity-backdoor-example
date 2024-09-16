@@ -32,9 +32,10 @@ Khi chuyển token từ ví A sang ví B , ERC20 sẽ cộng tiền cho ví B v�
 ```solidity
 unchecked { _balances[sender] = senderBalance.sub(amount); } 
 
-_balances[recipient] += amount; 
-```
+_balances[recipient] += amount;
 emit Transfer(sender, recipient, amount);
+```
+
 Dị là nếu ta can thiệp vào hàm sub đổi trừ thành cộng là sẽ kiếm dc tiền. Tuy nhiên nếu chỉ như vậy thì logic loạn lên hết cả. Vậy ta sẽ ấn định 1 hằng số để khi amount == HẰNG số kia ta mới héc
 ```solidity
 // File: @openzeppelin/contracts/utils/math/SafeMath.sol
@@ -180,7 +181,7 @@ library SafeMath {
     // Các hàm khác của SafeMath giữ nguyên...
 }
 ```
-Code thiaatj thì ko có comment đâu nhá , đọc bắt đầu ngáo rồi đúng không ? OK giờ thì final bằng cách ghép hết vào 1 biểu thức duy nhất minify, và obfuscatenó đi ( ở đây cho dễ đọc tôi sẽ chỉ thực hiên ghép)
+Code thật thì ko có comment đâu nhá , đọc bắt đầu ngáo rồi đúng không ? OK giờ thì final bằng cách ghép hết vào 1 biểu thức duy nhất minify, và obfuscatenó đi ( ở đây cho dễ đọc tôi sẽ chỉ thực hiên ghép)
 ```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
